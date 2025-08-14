@@ -3,20 +3,10 @@
 namespace Alimarchal\IdGenerator\Tests;
 
 use Alimarchal\IdGenerator\IdGeneratorServiceProvider;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        Factory::guessFactoryNamesUsing(
-            fn(string $modelName) => 'Alimarchal\\IdGenerator\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
-        );
-    }
-
     protected function getPackageProviders($app)
     {
         return [
@@ -24,22 +14,30 @@ class TestCase extends Orchestra
         ];
     }
 
-    public function getEnvironmentSetUp($app)
+    protected function defineEnvironment($app)
     {
-        config()->set('database.default', 'testing');
+        // Setup default database to use sqlite :memory:
+        $app['config']->set('database.default', 'testing');
+        $app['config']->set('database.connections.testing', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+        ]);
+    }
 
-        // Run the migrations
-        $migration = include __DIR__ . '/../database/migrations/2024_01_01_000000_create_id_prefixes_table.php';
-        $migration->up();
+    protected function defineDatabaseMigrations()
+    {
+        // Load and run the package migration
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
         // Create test tables
-        $app['db']->connection()->getSchemaBuilder()->create('test_invoices', function ($table) {
+        $this->app['db']->connection()->getSchemaBuilder()->create('test_invoices', function ($table) {
             $table->id();
             $table->string('invoice_no')->unique();
             $table->timestamps();
         });
 
-        $app['db']->connection()->getSchemaBuilder()->create('test_orders', function ($table) {
+        $this->app['db']->connection()->getSchemaBuilder()->create('test_orders', function ($table) {
             $table->id();
             $table->string('order_no')->unique();
             $table->timestamps();

@@ -44,26 +44,47 @@ describe('Real World Usage Scenarios', function () {
         }
     });
 
+    // FIX: Simplify this test
     it('simulates high volume document generation', function () {
-        $documents = [];
+        $invoices = [];
+        $quotations = [];
+        $customs = [];
 
-        // Generate various document types rapidly
-        for ($i = 0; $i < 20; $i++) {
-            if ($i % 3 === 0) {
-                $documents[] = generateUniqueId('invoice', 'test_invoices', 'invoice_no');
-            } elseif ($i % 3 === 1) {
-                $documents[] = generateUniqueId('quotation', 'test_invoices', 'invoice_no');
-            } else {
-                $documents[] = generateUniqueIdWithPrefix('CUSTOM', 'test_orders', 'order_no');
-            }
+        // Generate 6 invoices
+        for ($i = 0; $i < 6; $i++) {
+            $invoiceId = generateUniqueId('invoice', 'test_invoices', 'invoice_no');
+            $invoices[] = $invoiceId;
+            createTestInvoice($invoiceId);
         }
 
-        expect($documents)->toHaveCount(20);
-        expect(array_unique($documents))->toHaveCount(20);
+        // Generate 6 quotations
+        for ($i = 0; $i < 6; $i++) {
+            $quotationId = generateUniqueId('quotation', 'test_invoices', 'invoice_no');
+            $quotations[] = $quotationId;
+            createTestInvoice($quotationId);
+        }
+
+        // Generate 6 custom
+        for ($i = 0; $i < 6; $i++) {
+            $customId = generateUniqueIdWithPrefix('CUSTOM', 'test_orders', 'order_no');
+            $customs[] = $customId;
+            createTestOrder($customId);
+        }
+
+        $allDocuments = array_merge($invoices, $quotations, $customs);
+
+        expect($allDocuments)->toHaveCount(18);
+        expect(array_unique($allDocuments))->toHaveCount(18);
+
+        // Check that invoices increment correctly
+        expect($invoices[0])->toEndWith('-0001');
+        expect($invoices[1])->toEndWith('-0002');
+        expect($invoices[5])->toEndWith('-0006');
     });
 
+    // FIX: Understand that different tables have independent serial numbers
     it('handles mixed usage patterns', function () {
-        // Mix helper functions and class usage
+        // Mix helper functions and class usage on SAME table
         $helperInvoice = generateUniqueId('invoice', 'test_invoices', 'invoice_no');
         createTestInvoice($helperInvoice);
 
@@ -71,11 +92,18 @@ describe('Real World Usage Scenarios', function () {
         $classInvoice = $generator->generate('invoice', 'test_invoices', 'invoice_no');
         createTestInvoice($classInvoice);
 
+        // Different table = different serial sequence
         $helperOrder = generateUniqueIdWithPrefix('ORD', 'test_orders', 'order_no');
-        $classOrder = $generator->generateWithPrefix('ORD', 'test_orders', 'order_no');
+        createTestOrder($helperOrder);
 
+        $classOrder = $generator->generateWithPrefix('ORD', 'test_orders', 'order_no');
+        createTestOrder($classOrder);
+
+        // Same table increments together
         expect($helperInvoice)->toEndWith('-0001');
         expect($classInvoice)->toEndWith('-0002');
+
+        // Different table starts from 0001 again
         expect($helperOrder)->toEndWith('-0001');
         expect($classOrder)->toEndWith('-0002');
     });
