@@ -14,9 +14,20 @@
         "illuminate/support": "^11.0 || ^12.0",
         "illuminate/database": "^11.0 || ^12.0"
     },
+    "require-dev": {
+        "pestphp/pest": "^2.0",
+        "pestphp/pest-plugin-laravel": "^2.0",
+        "orchestra/testbench": "^9.0",
+        "laravel/pint": "^1.0"
+    },
     "autoload": {
         "psr-4": {
             "Alimarchal\\IdGenerator\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Alimarchal\\IdGenerator\\Tests\\": "tests/"
         }
     },
     "extra": {
@@ -25,6 +36,15 @@
                 "Alimarchal\\IdGenerator\\IdGeneratorServiceProvider"
             ]
         }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "test-watch": "vendor/bin/pest --watch",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "sort-packages": true
     },
     "minimum-stability": "dev",
     "prefer-stable": true
