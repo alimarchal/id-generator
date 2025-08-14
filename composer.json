@@ -7,7 +7,7 @@
         {
             "name": "Ali Marchal",
             "email": "kh.marchal@gmail.com"
-        }
+        } 
     ],
     "require": {
         "php": "^8.2",
