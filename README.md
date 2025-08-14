@@ -419,4 +419,4 @@ This package is open-sourced software licensed under the [MIT license](LICENSE).
 
 ---
 
-**Made with ❤️ for the Laravel community by [Ali Marchal](https://github.com/alimarchal)**
+**Made with ❤️ for the Laravel community by [Ali Raza Marchal](https://github.com/alimarchal)**
